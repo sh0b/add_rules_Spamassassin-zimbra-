@@ -1,0 +1,50 @@
+# This is the right place to customize your installation of SpamAssassin.
+#
+# See 'perldoc Mail::SpamAssassin::Conf' for details of what can be
+# tweaked.
+#
+###########################################################################
+#
+#
+# rewrite_header Subject *****SPAM*****
+# report_safe 1
+# trusted_networks 212.17.35.
+# lock_method flock
+
+header DSPAM_SPAM X-DSPAM-Result =~ /^Spam$/
+describe DSPAM_SPAM DSPAM claims it is spam
+score DSPAM_SPAM 1.5
+
+header DSPAM_HAM X-DSPAM-Result =~ /^Innocent$/
+describe DSPAM_HAM DSPAM claims it is ham
+score DSPAM_HAM -0.5
+
+##### search for words that contain popular spam words
+
+body __WORDS1 /\bexample 0\b/i
+
+meta SPAM_WORDS (__WORDS1)
+describe SPAM_WORDS This message contained one or more of you defined spam words.
+score SPAM_WORDS 6
+
+###### idem, but is more aggressive
+
+body __AGGWORDS1 /\bexample 1\b/i
+
+meta SPAM_AGGRESSIVE_WORDS (__AGGWORDS1)
+describe SPAM_AGGRESSIVE_WORDS This message contained one or more of you defined spam words.
+score SPAM_AGGRESSIVE_WORDS 7
+
+
+%%uncomment VAR:zimbraMtaMyNetworks%%trusted_networks %%zimbraMtaMyNetworks%%
+%%uncomment VAR:zimbraMtaAntiSpamLockMethod%%lock_method %%zimbraMtaAntiSpamLockMethod%%
+
+rewrite_header Subject *SPAM* _STARS(*)_
+bayes_auto_learn 1
+bayes_min_spam_num 60
+bayes_min_ham_num 60
+clear_headers
+add_header spam Flag _YESNOCAPS_
+add_header all Status _YESNO_, score=_SCORE_ required=_REQD_ tests=_TESTS_ autolearn=_AUTOLEARN_ version=_VERSION_
+add_header all Level _STARS(*)_
+add_header all Checker-Version SpamAssassin _VERSION_ (_SUBVERSION_) on _HOSTNAME_
