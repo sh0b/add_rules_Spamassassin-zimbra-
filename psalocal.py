@@ -2,11 +2,14 @@
 #
 # MOD salocal.in of {zimbra}
 #
+
 import re
 import sys
 import shutil
 import datetime
 import os
+#import lepl.apps.rfc3696
+
 
 ## Backup
 today = str(datetime.date.today())
@@ -22,6 +25,10 @@ def count_match(string_match):
 			i+=1;
 	return str(i+1) 
 
+def valid_email(email):
+    if email==None:
+        return False
+    return re.match(r"^[a-zA-Z0-9._%-+]+\@[a-zA-Z0-9._%-]+\.[a-zA-Z]{2,}$", email)!=None
 
 def add_spam_words(meta,body,fmeta):
 	match_count=count_match(body)
@@ -38,13 +45,17 @@ def add_spam_words(meta,body,fmeta):
 	print "-- Rule added -- \n"
 
 def add_to_blacklist():
-	bl_sa=raw_input('Blacklist to: ')
-	
-	for line in input:
-		output.write(line)
-	output.write ("\nblacklist_to "+ bl_sa+"\n")
-	
-	print "-- Blacklist added -- \n"
+	email_bl=raw_input('Blacklist to: ') 
+	if not valid_email(email_bl):
+		print "\nNo es un e-mail valido"
+		sys.exit()
+	else:
+		
+		for line in input:
+			output.write(line)
+		output.write ("\nblacklist_to "+ email_bl+"\n")
+		
+		print "-- Blacklist added -- \n"
 	
 ### Menu ###
 
